@@ -1,0 +1,27 @@
+{% extends 'game/base.html' %}
+
+{% block content %}
+    <p class="system-msg">Scanning for narrative files...</p>
+    <br>
+    
+    <h2>AVAILABLE_MODULES:</h2>
+
+    {% if stories %}
+        <ul style="list-style-type: none; padding: 0;">
+            {% for story in stories %}
+                <li style="margin-bottom: 20px;">
+                    <span>> FILE_ID_{{ story.id }}: </span>
+                    <strong style="text-transform: uppercase;">{{ story.title }}</strong>
+                    <br>
+                    <span style="color: #ccc;">&nbsp;&nbsp;DESCRIPTION: {{ story.description }}</span>
+                    <br>
+                    <a href="{% url 'play_story' story.id %}">
+                        [ EXECUTE_STORY.EXE ]
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p style="color: red;">ERROR: No story modules found in database.</p>
+    {% endif %}
+{% endblock %}
