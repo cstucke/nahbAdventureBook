@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 import requests
 from django.conf import settings
 from .models import Play
+from django.db.models import Count
 
 # Create your views here.
 def story_list(request):
@@ -45,3 +46,49 @@ def play_story(request, story_id):
         'story_id': story_id,
         'page': page_data
     })
+
+def global_stats(request):
+    try:
+        response = requests.get(f"{settings.FLASK_API_URL}/stories?status=published")
+        stories = response.json()
+    except requests.RequestException:
+        stories = []
+
+    stats_data = []
+
+    for story in stories:
+        s_id = story['id']
+        
+        total_plays = Play.objects.filter(story_id=s_id).count()
+        
+        if total_plays > 0:
+            ending_counts = Play.objects.filter(story_id=s_id).values('ending_page_id').annotate(count=Count('ending_page_id'))
+            
+            detailed_endings = []
+            for ec in ending_counts:
+                page_id = ec['ending_page_id']
+                count = ec['count']
+                percentage = int((count / total_plays) * 100)
+                
+                try:
+                    p_res = requests.get(f"{settings.FLASK_API_URL}/pages/{page_id}")
+                    if p_res.status_code == 200:
+                        label = p_res.json().get('ending_label') or f"Page #{page_id}"
+                    else:
+                        label = f"Unknown Page {page_id}"
+                except:
+                    label = "API Error"
+
+                detailed_endings.append({
+                    'label': label,
+                    'count': count,
+                    'percentage': percentage
+                })
+            
+            stats_data.append({
+                'title': story['title'],
+                'total_plays': total_plays,
+                'endings': detailed_endings
+            })
+
+    return render(request, 'game/stats.html', {'stats_data': stats_data})

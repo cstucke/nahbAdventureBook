@@ -1,0 +1,40 @@
+{% extends 'game/base.html' %}
+
+{% block content %}
+    <p class="system-msg">ACCESSING GLOBAL_METRICS_DB...</p>
+    <br>
+
+    <h2>// GLOBAL STATISTICS //</h2>
+
+    {% if stats_data %}
+        {% for stat in stats_data %}
+            <div style="border: 1px dashed #33ff33; padding: 15px; margin-bottom: 20px;">
+                <h3 style="margin-top: 0;">MODULE: {{ stat.title }}</h3>
+                <p>TOTAL_EXECUTIONS: {{ stat.total_plays }}</p>
+                
+                <div class="separator"></div>
+                
+                <p>OUTCOME_DISTRIBUTION:</p>
+                <ul style="list-style: none; padding-left: 0;">
+                    {% for ending in stat.endings %}
+                        <li style="margin-bottom: 8px;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>> {{ ending.label }}</span>
+                                <span>{{ ending.percentage }}% ({{ ending.count }})</span>
+                            </div>
+                            <div style="background: #111; border: 1px solid #333; height: 10px; width: 100%; margin-top: 2px;">
+                                <div style="background: #33ff33; height: 100%; width: {{ ending.percentage }}%;"></div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>NO DATA AVAILABLE. SYSTEM IDLE.</p>
+    {% endif %}
+
+    <br>
+    <a href="{% url 'story_list' %}">&lt;&lt; RETURN_TO_ROOT</a>
+
+{% endblock %}
