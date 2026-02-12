@@ -4,6 +4,23 @@
 <p class="system-msg">Scanning for narrative files...</p>
 <br>
 
+<div style="border: 1px dashed #33ff33; padding: 10px; margin-bottom: 20px;">
+    <p class="system-msg">SEARCH_DATABASE:</p>
+    <form method="get" action="" style="display: flex; gap: 10px;">
+        <span style="align-self: center;">></span>
+        <input type="text" name="q" value="{{ search_query }}" placeholder="Enter keywords..."
+            style="background: black; color: #33ff33; border: none; border-bottom: 1px solid #33ff33; font-family: inherit; width: 100%; outline: none;">
+        <button type="submit"
+            style="background: #33ff33; color: black; border: none; font-family: inherit; cursor: pointer; padding: 0 10px;">[
+            SCAN ]</button>
+
+        {% if search_query %}
+        <a href="{% url 'story_list' %}" style="color: #ff3333; align-self: center; text-decoration: none;">[ CLEAR
+            ]</a>
+        {% endif %}
+    </form>
+</div>
+
 <h2>AVAILABLE_MODULES:</h2>
 
 {% if stories %}

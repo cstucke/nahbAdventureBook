@@ -6,8 +6,15 @@ from django.db.models import Count
 
 # Create your views here.
 def story_list(request):
+    search_query = request.GET.get('q', '')
+
     try:
-        response = requests.get(f"{settings.FLASK_API_URL}/stories?status=published")
+        api_url = f"{settings.FLASK_API_URL}/stories?status=published"
+
+        if search_query:
+            api_url += f"&q={search_query}"
+        
+        response = requests.get(api_url)
         stories = response.json()
     except requests.RequestException:
         stories = []
@@ -16,7 +23,7 @@ def story_list(request):
         story_id = story['id']
         story['has_save'] = request.session.get(f'progress_{story_id}') is not None
 
-    return render(request, 'game/story_list.html', {'stories': stories})
+    return render(request, 'game/story_list.html', {'stories': stories, 'search_query': search_query})
 
 def play_story(request, story_id):
     page_id = request.GET.get('page')
