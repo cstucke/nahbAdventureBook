@@ -12,12 +12,23 @@ def story_list(request):
     except requests.RequestException:
         stories = []
 
+    for story in stories:
+        story_id = story['id']
+        story['has_save'] = request.session.get(f'progress_{story_id}') is not None
+
     return render(request, 'game/story_list.html', {'stories': stories})
 
 def play_story(request, story_id):
     page_id = request.GET.get('page')
-
+    session_key = f'progress_{story_id}'
+    
+    
     if not page_id:
+
+        saved_page = request.session.get(session_key)
+        if saved_page:
+            return redirect(f"/play/{story_id}?page={saved_page}")
+
         story_res = requests.get(f"{settings.FLASK_API_URL}/stories/{story_id}")
         if story_res.status_code != 200:
             return render(request, 'game/error.html', {'message': "Story not found"})
@@ -37,15 +48,26 @@ def play_story(request, story_id):
     page_data = page_res.json()
 
     if page_data.get('is_ending'):
+        if session_key in request.session:
+            del request.session[session_key]
+
         Play.objects.create(
             story_id=story_id,
             ending_page_id=page_data['id']
         )
+    else:
+        request.session[session_key] = page_id
     
     return render(request, 'game/play.html', {
         'story_id': story_id,
         'page': page_data
     })
+
+def restart_story(request, story_id):
+    session_key = f'progress_{story_id}'
+    if session_key in request.session:
+        del request.session[session_key]
+    return redirect('story_list')
 
 def global_stats(request):
     try:

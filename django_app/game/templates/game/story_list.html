@@ -15,9 +15,21 @@
         <br>
         <span style="color: #ccc;">&nbsp;&nbsp;DESCRIPTION: {{ story.description }}</span>
         <br>
-        <a href="{% url 'play_story' story.id %}">
-            [ EXECUTE_STORY.EXE ]
-        </a>
+        <div style="display: flex; gap: 15px; align-items: center;">
+            {% if story.has_save %}
+            <a href="{% url 'play_story' story.id %}" style="color: #ffff33;">
+                [ >> RESUME_SESSION ]
+            </a>
+
+            <a href="{% url 'restart_story' story.id %}" style="color: #ff3333; font-size: 0.8em;">
+                [ X DELETE_SAVE ]
+            </a>
+            {% else %}
+            <a href="{% url 'play_story' story.id %}">
+                [ EXECUTE_STORY.EXE ]
+            </a>
+            {% endif %}
+        </div>
     </li>
     {% endfor %}
 </ul>
