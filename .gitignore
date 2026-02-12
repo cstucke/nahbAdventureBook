@@ -1,3 +1,9 @@
-venv/*
-app/config.py
+# General
+venv/
 *.pyc
+
+# Flask
+flask_api/instance/
+flask_api/app/config.py
+
+# Django
