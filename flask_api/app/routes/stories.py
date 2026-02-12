@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request, abort
 from app import db
 from app.models import Story, Page
 from sqlalchemy import func
+from app.utils import require_api_key
 
 stories_bp = Blueprint('stories', __name__, url_prefix='/stories')
 
@@ -10,10 +11,13 @@ stories_bp = Blueprint('stories', __name__, url_prefix='/stories')
 def get_stories():
     status_filter = request.args.get('status')
     search_query = request.args.get('q')
+    author_id = request.args.get('author_id')
 
     query = Story.query
 
-    if status_filter:
+    if author_id:
+        query = query.filter_by(author_id=author_id)
+    elif status_filter:
         query = query.filter_by(status=status_filter)
     
     if search_query:
@@ -43,6 +47,7 @@ def start_story(story_id):
 
 # POST /stories
 @stories_bp.route('', methods=['POST'])
+@require_api_key
 def create_story():
     data = request.get_json()
     if not data or 'title' not in data:
@@ -51,7 +56,8 @@ def create_story():
     new_story = Story(
         title=data['title'],
         description=data.get('description', ''),
-        status=data.get('status', 'draft')
+        status=data.get('status', 'draft'),
+        author_id=data.get('author_id')
     )
     db.session.add(new_story)
     db.session.commit()
@@ -59,6 +65,7 @@ def create_story():
 
 # PUT /stories/<id>
 @stories_bp.route('/<int:story_id>', methods=['PUT'])
+@require_api_key
 def update_story(story_id):
     story = Story.query.get_or_404(story_id)
     data = request.get_json()
@@ -77,6 +84,7 @@ def update_story(story_id):
 
 # DELETE /stories/<id>
 @stories_bp.route('/<int:story_id>', methods=['DELETE'])
+@require_api_key
 def delete_story(story_id):
     story = Story.query.get_or_404(story_id)
     db.session.delete(story)
@@ -85,6 +93,7 @@ def delete_story(story_id):
 
 # POST /stories/<id>/pages
 @stories_bp.route('/<int:story_id>/pages', methods=['POST'])
+@require_api_key
 def create_page_for_story(story_id):
     story = Story.query.get_or_404(story_id)
     data = request.get_json()

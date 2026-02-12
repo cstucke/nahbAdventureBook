@@ -8,6 +8,7 @@ class Story(db.Model):
     title = db.Column(db.String(150), nullable=False)
     description = db.Column(db.Text, nullable=True)
     status = db.Column(db.String(20), default='draft') 
+    author_id = db.Column(db.Integer, nullable=True)
     
     start_page_id = db.Column(
         db.Integer, 
@@ -26,6 +27,7 @@ class Story(db.Model):
             'title': self.title,
             'description': self.description,
             'status': self.status,
+            'author_id': self.author_id,
             'start_page_id': self.start_page_id,
             'illustration_url': self.illustration_url
         }

@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from app import db
 from app.models import Page, Choice
+from app.utils import require_api_key
 
 pages_bp = Blueprint('pages', __name__, url_prefix='/pages')
 
@@ -12,6 +13,7 @@ def get_page(page_id):
 
 # POST /pages/<id>/choices
 @pages_bp.route('/<int:page_id>/choices', methods=['POST'])
+@require_api_key
 def add_choice(page_id):
     page = Page.query.get_or_404(page_id)
     data = request.get_json()
