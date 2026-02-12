@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request, abort
 from app import db
 from app.models import Story, Page
+from sqlalchemy import func
 
 stories_bp = Blueprint('stories', __name__, url_prefix='/stories')
 
@@ -8,10 +9,21 @@ stories_bp = Blueprint('stories', __name__, url_prefix='/stories')
 @stories_bp.route('', methods=['GET'])
 def get_stories():
     status_filter = request.args.get('status')
+    search_query = request.args.get('q')
+
+    query = Story.query
+
     if status_filter:
-        stories = Story.query.filter_by(status=status_filter).all()
-    else:
-        stories = Story.query.all()
+        query = query.filter_by(status=status_filter)
+    
+    if search_query:
+        lower_query = search_query.lower()
+        query = query.filter(
+            (func.lower(Story.title).contains(lower_query)) | (func.lower(Story.description).contains(lower_query))
+        )
+
+    stories = query.all()
+
     return jsonify([s.to_dict() for s in stories])
 
 # GET /stories/<id>
