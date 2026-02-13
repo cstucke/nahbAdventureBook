@@ -1,0 +1,28 @@
+{% extends 'game/base.html' %}
+
+{% block content %}
+<p class="system-msg">EXECUTING CREATE_STORY_WIZARD...</p>
+<br>
+
+<h2>// NEW_NARRATIVE_FILE //</h2>
+
+<form method="post" style="max-width: 600px;">
+    {% csrf_token %}
+    
+    <div style="margin-bottom: 20px;">
+        <label for="title">FILENAME (TITLE):</label>
+        <input type="text" name="title" id="title" required placeholder="Enter story title..." autocomplete="off">
+    </div>
+
+    <div style="margin-bottom: 20px;">
+        <label for="description">METADATA (DESCRIPTION):</label>
+        <textarea name="description" id="description" rows="4" placeholder="Enter brief description..."></textarea>
+    </div>
+
+    <div class="separator"></div>
+
+    <button type="submit">[ SAVE_TO_DATABASE ]</button>
+    <a href="{% url 'my_stories' %}" style="margin-left: 20px; color: #ff3333;">[ CANCEL ]</a>
+</form>
+
+{% endblock %}

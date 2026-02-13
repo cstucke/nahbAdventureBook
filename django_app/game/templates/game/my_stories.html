@@ -1,0 +1,62 @@
+{% extends 'game/base.html' %}
+
+{% block content %}
+<p class="system-msg">LOADING AUTHOR_WORKSPACE...</p>
+<br>
+
+<div style="display: flex; justify-content: space-between; align-items: center;">
+    <h2>MY_PROJECTS_DIR</h2>
+    <a href="{% url 'create_story' %}" style="border: 1px solid #33ff33; padding: 5px 10px;">
+        [ + NEW_FILE ]
+    </a>
+</div>
+
+<div class="separator"></div>
+
+{% if stories %}
+    <table style="width: 100%; border-collapse: collapse; text-align: left;">
+        <thead>
+            <tr style="border-bottom: 1px dashed #666;">
+                <th style="padding: 10px;">ID</th>
+                <th style="padding: 10px;">TITLE</th>
+                <th style="padding: 10px;">STATUS</th>
+                <th style="padding: 10px; text-align: right;">ACTIONS</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for story in stories %}
+            <tr style="border-bottom: 1px solid #222;">
+                <td style="padding: 10px; color: #666;">{{ story.id }}</td>
+                <td style="padding: 10px;">
+                    <strong>{{ story.title }}</strong>
+                </td>
+                <td style="padding: 10px;">
+                    {% if story.status == 'published' %}
+                        <span style="color: #33ff33;">[ PUBLISHED ]</span>
+                    {% elif story.status == 'suspended' %}
+                        <span style="color: #ff3333;">[ SUSPENDED ]</span>
+                    {% else %}
+                        <span style="color: #ffff33;">[ DRAFT ]</span>
+                    {% endif %}
+                </td>
+                <td style="padding: 10px; text-align: right;">
+                    <a href="#" style="color: #999; margin-right: 10px;">[ EDIT ]</a>
+                    <a href="{% url 'delete_story' story.id %}" style="color: #ff3333;" onclick="return confirm('WARNING: DELETE FILE? THIS CANNOT BE UNDONE.');">
+                        [ DELETE ]
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p style="text-align: center; color: #666; margin-top: 40px;">
+        DIRECTORY EMPTY. NO STORIES FOUND.<br><br>
+        <a href="{% url 'create_story' %}">&gt; CREATE_FIRST_STORY.EXE</a>
+    </p>
+{% endif %}
+
+<div class="separator"></div>
+<a href="{% url 'story_list' %}">&lt;&lt; RETURN_TO_ROOT</a>
+
+{% endblock %}

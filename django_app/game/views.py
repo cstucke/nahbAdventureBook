@@ -3,8 +3,86 @@ import requests
 from django.conf import settings
 from .models import Play
 from django.db.models import Count
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
+def get_headers():
+    return {'X-API-KEY': settings.FLASK_API_KEY}
+
+# Authentication Views
+
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('home')
+    else:
+        form = UserCreationForm()
+    return render(request, 'registration/register.html', {'form': form})
+
+# Author Views
+
+@login_required
+def my_stories(request):
+    try:
+        api_url = f"{settings.FLASK_API_URL}/stories"
+        response = requests.get(api_url, params={'author_id': request.user.id})
+        stories = response.json()
+    except requests.RequestException:
+        stories = []
+    
+    return render(request, 'game/my_stories.html', {'stories': stories})
+
+@login_required
+def create_story(request):
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        description = request.POST.get('description')
+        
+        payload = {
+            'title': title,
+            'description': description,
+            'status': 'draft',
+            'author_id': request.user.id
+        }
+        
+        try:
+            response = requests.post(
+                f"{settings.FLASK_API_URL}/stories", 
+                json=payload,
+                headers=get_headers() 
+            )
+            response.raise_for_status()
+            return redirect('my_stories')
+        except requests.RequestException:
+             return render(request, 'game/error.html', {'message': "Failed to create story"})
+
+    return render(request, 'game/create_story.html')
+
+@login_required
+def delete_story(request, story_id):
+    try:
+        res = requests.get(f"{settings.FLASK_API_URL}/stories/{story_id}")
+        if res.status_code == 200:
+            story = res.json()
+            if story.get('author_id') != request.user.id:
+                 return render(request, 'game/error.html', {'message': "Unauthorized"})
+            
+            requests.delete(
+                f"{settings.FLASK_API_URL}/stories/{story_id}", 
+                headers=get_headers()
+            )
+    except requests.RequestException:
+        pass
+        
+    return redirect('my_stories')
+
+# Public Views
+
 def story_list(request):
     search_query = request.GET.get('q', '')
 
@@ -25,6 +103,7 @@ def story_list(request):
 
     return render(request, 'game/story_list.html', {'stories': stories, 'search_query': search_query})
 
+@login_required
 def play_story(request, story_id):
     page_id = request.GET.get('page')
     session_key = f'progress_{story_id}'
@@ -41,8 +120,10 @@ def play_story(request, story_id):
             return render(request, 'game/error.html', {'message': "Story not found"})
         
         story_data = story_res.json()
-        start_page_id = story_data.get('start_page_id')
+        if story_data.get('status') == 'suspended':
+            return render(request, 'game/error.html', {'message': "This story is suspended."})
         
+        start_page_id = story_data.get('start_page_id')
         if not start_page_id:
              return render(request, 'game/error.html', {'message': "Story has no start page"})
              
@@ -59,6 +140,7 @@ def play_story(request, story_id):
             del request.session[session_key]
 
         Play.objects.create(
+            user=request.user,
             story_id=story_id,
             ending_page_id=page_data['id']
         )

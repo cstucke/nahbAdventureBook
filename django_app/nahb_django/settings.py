@@ -119,3 +119,6 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 FLASK_API_URL = "http://127.0.0.1:5000"
+
+LOGIN_REDIRECT_URL = 'story_list'
+LOGOUT_REDIRECT_URL = 'story_list'

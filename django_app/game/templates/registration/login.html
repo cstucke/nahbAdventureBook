@@ -1,0 +1,28 @@
+{% extends 'game/base.html' %}
+
+{% block content %}
+<p class="system-msg">AUTHENTICATION REQUIRED...</p>
+<br>
+
+<div style="max-width: 400px; margin: 0 auto; border: 1px dashed #33ff33; padding: 20px;">
+    <h3>// LOGIN_SEQUENCE //</h3>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        {% if form.errors %}
+            <p style="color: #ff3333;">ERROR: INVALID CREDENTIALS</p>
+        {% endif %}
+
+        <label for="id_username">USERNAME:</label>
+        {{ form.username }}
+        
+        <label for="id_password">PASSWORD:</label>
+        {{ form.password }}
+        
+        <br><br>
+        <button type="submit">[ EXECUTE LOGIN ]</button>
+        <input type="hidden" name="next" value="{{ next }}">
+    </form>
+</div>
+{% endblock %}

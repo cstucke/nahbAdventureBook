@@ -44,6 +44,33 @@
             cursor: pointer;
         }
 
+        input[type="text"], input[type="password"], textarea {
+            background: #000;
+            color: #33ff33;
+            border: 1px solid #33ff33;
+            padding: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+        
+        button, input[type="submit"] {
+            background: #33ff33;
+            color: #000;
+            border: none;
+            padding: 8px 15px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        button:hover, input[type="submit"]:hover {
+            background: #fff;
+        }
+
         .cursor {
             display: inline-block;
             width: 10px;
@@ -74,14 +101,59 @@
             color: #666;
             font-size: 0.9em;
         }
+
+        .nav-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px double #33ff33;
+            padding-bottom: 15px;
+        }
+        
+        .nav-links {
+            font-size: 0.9em;
+        }
+        
+        .nav-links a, .nav-links button {
+            margin-left: 15px;
+        }
+        
+        .logout-btn {
+            background: none;
+            color: #ff3333;
+            border: 1px solid #ff3333;
+            padding: 2px 8px;
+        }
+        .logout-btn:hover {
+            background: #ff3333;
+            color: #000;
+        }
     </style>
 </head>
 
 <body>
 
     <div class="terminal-window">
-        <header>
-            <h1><a href="{% url 'story_list' %}">NAHB_SYSTEM_ROOT/</a></h1>
+        <header class="nav-header">
+            <h1 style="border: none; margin: 0; padding: 0;">
+                <a href="{% url 'story_list' %}">NAHB_SYSTEM_ROOT/</a>
+            </h1>
+            
+            <div class="nav-links">
+                {% if user.is_authenticated %}
+                    <span class="system-msg">USER: {{ user.username }}</span>
+                    <a href="{% url 'my_stories' %}">[ MY_CONSOLE ]</a>
+                    
+                    <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="logout-btn">[ LOGOUT ]</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}">[ LOGIN ]</a>
+                    <a href="{% url 'register' %}">[ REGISTER ]</a>
+                {% endif %}
+            </div>
         </header>
 
         <main>
@@ -89,7 +161,7 @@
         </main>
 
         <footer style="margin-top: 50px; border-top: 1px double #33ff33; padding-top: 10px;">
-            <p class="system-msg">root@user:~$ <span class="cursor"></span></p>
+            <p class="system-msg">root@{{ user.username|default:'guest' }}:~$ <span class="cursor"></span></p>
         </footer>
     </div>
 
