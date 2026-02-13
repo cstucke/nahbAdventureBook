@@ -1,0 +1,54 @@
+{% extends 'game/base.html' %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center;">
+    <h2>// MODULE_STRUCTURE: {{ story.title }}</h2>
+    <a href="{% url 'create_page' story.id %}" style="border: 1px solid #33ff33; padding: 5px;">[ + ADD_PAGE ]</a>
+</div>
+
+<p class="system-msg">MAPPING_NARRATIVE_NODES...</p>
+<div class="separator"></div>
+
+{% if story.pages %}
+<ul style="list-style: none; padding: 0;">
+    {% for page in story.pages %}
+    <li style="margin-bottom: 20px; border: 1px dashed #333; padding: 15px;">
+        <div style="display: flex; justify-content: space-between;">
+            <strong>PAGE_ID_{{ page.id }}</strong>
+            <div>
+                {% if story.start_page_id == page.id %}
+                <span style="color: #ffff33;">[ START_NODE ]</span>
+                {% endif %}
+                {% if page.is_ending %}
+                <span style="color: #ff3333;">[ ENDING ]</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <p
+            style="color: #ccc; font-size: 0.9em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 600px;">
+            "{{ page.text }}"
+        </p>
+
+        <div style="margin-top: 10px;">
+            {% if story.start_page_id == page.id %}
+            <span style="color: #33ff33; border: 1px solid #33ff33; padding: 2px 5px; margin-right: 10px;">[
+                CURRENT_START ]</span>
+            {% else %}
+            <a href="{% url 'set_start_page' story.id page.id %}" style="color: #ffff33; margin-right: 10px;">[
+                SET_AS_START ]</a>
+            {% endif %}
+            <a href="{% url 'edit_page' page.id %}">[ EDIT_CONTENT ]</a>
+            <a href="{% url 'delete_page' page.id %}" style="color: #ff3333; margin-left: 10px;"
+                onclick="return confirm('DELETE NODE?');">[ DELETE ]</a>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>NO PAGES FOUND. SYSTEM EMPTY.</p>
+{% endif %}
+
+<div class="separator"></div>
+<a href="{% url 'my_stories' %}">&lt;&lt; BACK_TO_DASHBOARD</a>
+{% endblock %}

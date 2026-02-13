@@ -1,0 +1,36 @@
+{% extends 'game/base.html' %}
+
+{% block content %}
+<p class="system-msg">INITIALIZING_NEW_NODE_PROTOCOL...</p>
+<br>
+
+<h2>// CREATE_NEW_PAGE //</h2>
+
+<form method="post" style="max-width: 600px;">
+    {% csrf_token %}
+    
+    <div style="margin-bottom: 20px;">
+        <label for="text">NARRATIVE_TEXT:</label>
+        <textarea name="text" id="text" rows="6" required 
+                  placeholder="Enter the story text for this page..."></textarea>
+    </div>
+
+    <div style="margin-bottom: 20px; border: 1px dashed #33ff33; padding: 15px;">
+        <p class="system-msg">NODE_PROPERTIES:</p>
+        <label style="display: block; margin-bottom: 10px;">
+            <input type="checkbox" name="is_ending" value="true">
+            MARK_AS_ENDING_NODE
+        </label>
+        
+        <label for="ending_label">ENDING_LABEL (IF_ENDING):</label>
+        <input type="text" name="ending_label" id="ending_label" 
+               placeholder="e.g., THE END / MISSION FAILED">
+    </div>
+
+    <div class="separator"></div>
+
+    <button type="submit">[ COMMIT_PAGE.EXE ]</button>
+    <a href="{% url 'story_structure' story_id %}" style="margin-left: 20px; color: #ff3333;">[ ABORT ]</a>
+</form>
+
+{% endblock %}

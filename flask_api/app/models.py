@@ -9,6 +9,7 @@ class Story(db.Model):
     description = db.Column(db.Text, nullable=True)
     status = db.Column(db.String(20), default='draft') 
     author_id = db.Column(db.Integer, nullable=True)
+    pages = db.relationship('Page', backref='story', lazy=True, cascade="all, delete-orphan")
     
     start_page_id = db.Column(
         db.Integer, 
@@ -29,7 +30,8 @@ class Story(db.Model):
             'status': self.status,
             'author_id': self.author_id,
             'start_page_id': self.start_page_id,
-            'illustration_url': self.illustration_url
+            'illustration_url': self.illustration_url,
+            'pages': [p.to_dict() for p in self.pages]
         }
 
 class Page(db.Model):

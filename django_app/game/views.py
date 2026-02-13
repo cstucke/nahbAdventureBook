@@ -26,6 +26,8 @@ def register(request):
 
 # Author Views
 
+## Story CRUD
+
 @login_required
 def my_stories(request):
     try:
@@ -95,6 +97,138 @@ def publish_story(request, story_id):
                 headers=get_headers()
             )
     return redirect('my_stories')
+
+@login_required
+def edit_story(request, story_id):
+    try:
+        response = requests.get(f"{settings.FLASK_API_URL}/stories/{story_id}")
+        response.raise_for_status()
+        story = response.json()
+    except requests.RequestException:
+        return render(request, 'game/error.html', {'message': "MODULE_NOT_FOUND"})
+
+    if story.get('author_id') != request.user.id:
+        return render(request, 'game/error.html', {'message': "ACCESS_DENIED: UNAUTHORIZED_USER"})
+
+    if request.method == 'POST':
+        payload = {
+            'title': request.POST.get('title'),
+            'description': request.POST.get('description'),
+            'status': request.POST.get('status')
+        }
+        
+        try:
+            update_res = requests.put(
+                f"{settings.FLASK_API_URL}/stories/{story_id}",
+                json=payload,
+                headers={'X-API-KEY': settings.FLASK_API_KEY}
+            )
+            update_res.raise_for_status()
+            return redirect('my_stories')
+        except requests.RequestException:
+            return render(request, 'game/error.html', {'message': "UPDATE_FAILED: DATABASE_REJECTED_CHANGES"})
+
+    return render(request, 'game/edit_story.html', {'story': story})
+
+## Pages CRUD
+
+@login_required
+def story_structure(request, story_id):
+    try:
+        story_res = requests.get(f"{settings.FLASK_API_URL}/stories/{story_id}")
+        story = story_res.json()
+        if story.get('author_id') != request.user.id:
+             return render(request, 'game/error.html', {'message': "UNAUTHORIZED"})
+        
+        pass 
+    except:
+        return render(request, 'game/error.html', {'message': "API_ERROR"})
+
+    return render(request, 'game/story_pages.html', {'story': story})
+
+@login_required
+def set_start_page(request, story_id, page_id):
+    payload = {'start_page_id': page_id}
+    requests.put(
+        f"{settings.FLASK_API_URL}/stories/{story_id}", 
+        json=payload, 
+        headers={'X-API-KEY': settings.FLASK_API_KEY}
+    )
+    return redirect('story_structure', story_id=story_id)
+
+@login_required
+def create_page(request, story_id):
+    if request.method == 'POST':
+        text = request.POST.get('text')
+        payload = {
+            'text': text,
+            'is_ending': 'is_ending' in request.POST,
+            'ending_label': request.POST.get('ending_label')
+        }
+        
+        requests.post(
+            f"{settings.FLASK_API_URL}/stories/{story_id}/pages",
+            json=payload,
+            headers=get_headers()
+        )
+        return redirect('story_structure', story_id=story_id)
+        
+    return render(request, 'game/create_page.html', {'story_id': story_id})
+
+@login_required
+def edit_page(request, page_id):
+    res = requests.get(f"{settings.FLASK_API_URL}/pages/{page_id}")
+    page = res.json()
+    
+    if request.method == 'POST':
+        payload = {
+            'text': request.POST.get('text'),
+            'is_ending': 'is_ending' in request.POST,
+            'ending_label': request.POST.get('ending_label')
+        }
+        requests.put(
+            f"{settings.FLASK_API_URL}/pages/{page_id}",
+            json=payload,
+            headers=get_headers()
+        )
+        return redirect('story_structure', story_id=page['story_id'])
+
+    return render(request, 'game/edit_page.html', {'page': page})
+
+@login_required
+def add_choice(request, page_id):
+    if request.method == 'POST':
+        text = request.POST.get('choice_text')
+        next_page_id = request.POST.get('next_page_id')
+        
+        payload = {
+            'text': text,
+            'next_page_id': next_page_id
+        }
+        requests.post(
+            f"{settings.FLASK_API_URL}/pages/{page_id}/choices",
+            json=payload,
+            headers=get_headers()
+        )
+        return redirect('edit_page', page_id=page_id)
+    return redirect('edit_page', page_id=page_id)
+
+@login_required
+def delete_choice_view(request, choice_id):
+    requests.delete(f"{settings.FLASK_API_URL}/pages/choices/{choice_id}", headers=get_headers())
+    return redirect(request.META.get('HTTP_REFERER', 'home'))
+
+@login_required
+def delete_page_view(request, page_id):
+    try:
+        res = requests.get(f"{settings.FLASK_API_URL}/pages/{page_id}")
+        page = res.json()
+        story_id = page['story_id']
+        
+        requests.delete(f"{settings.FLASK_API_URL}/pages/{page_id}", headers=get_headers())
+        return redirect('story_structure', story_id=story_id)
+    except:
+        return redirect('home')
 
 # Public Views
 

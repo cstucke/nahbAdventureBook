@@ -1,0 +1,54 @@
+{% extends 'game/base.html' %}
+
+{% block content %}
+<h2>// EDIT_NODE: {{ page.id }}</h2>
+
+<form method="post">
+    {% csrf_token %}
+    <label>NARRATIVE_TEXT:</label>
+    <textarea name="text" rows="6" required>{{ page.text }}</textarea>
+    
+    <div style="margin: 20px 0; border: 1px solid #333; padding: 10px;">
+        <label>
+            <input type="checkbox" name="is_ending" {% if page.is_ending %}checked{% endif %}>
+            IS_ENDING_NODE?
+        </label>
+        <br><br>
+        <label>ENDING_LABEL (Optional):</label>
+        <input type="text" name="ending_label" value="{{ page.ending_label|default:'' }}" placeholder="e.g. MISSION FAILED">
+    </div>
+
+    <button type="submit">[ SAVE_CHANGES ]</button>
+</form>
+
+<div class="separator"></div>
+
+{% if not page.is_ending %}
+    <h3>LINKED_PATHS (CHOICES)</h3>
+    
+    {% if page.choices %}
+        <ul>
+        {% for choice in page.choices %}
+            <li>
+                > "{{ choice.text }}" -> GOTO PAGE {{ choice.next_page_id }}
+                <a href="{% url 'delete_choice' choice.id %}" style="color: #ff3333; font-size: 0.8em; margin-left: 10px;">[ X ]</a>
+            </li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+
+    <div style="border: 1px dashed #33ff33; padding: 15px; margin-top: 15px;">
+        <p class="system-msg">ADD_NEW_PATH:</p>
+        <form action="{% url 'add_choice' page.id %}" method="post">
+            {% csrf_token %}
+            <input type="text" name="choice_text" placeholder="Choice text..." required>
+            <input type="number" name="next_page_id" placeholder="Target Page ID" required style="width: 150px;">
+            <button type="submit">[ LINK_NODE ]</button>
+        </form>
+    </div>
+{% endif %}
+
+<div class="separator"></div>
+<a href="{% url 'story_structure' page.story_id %}">&lt;&lt; RETURN_TO_STRUCTURE</a>
+
+{% endblock %}

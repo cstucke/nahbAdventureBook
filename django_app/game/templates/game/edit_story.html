@@ -1,0 +1,37 @@
+{% extends 'game/base.html' %}
+
+{% block content %}
+<p class="system-msg">ACCESSING_MODULE_ID_{{ story.id }}...</p>
+<br>
+
+<h2>// MODIFY_NARRATIVE_MODULE //</h2>
+
+<form method="post" style="max-width: 600px;">
+    {% csrf_token %}
+    
+    <div style="margin-bottom: 20px;">
+        <label for="title">FILENAME (TITLE):</label>
+        <input type="text" name="title" id="title" value="{{ story.title }}" required>
+    </div>
+
+    <div style="margin-bottom: 20px;">
+        <label for="description">METADATA (DESCRIPTION):</label>
+        <textarea name="description" id="description" rows="4">{{ story.description }}</textarea>
+    </div>
+
+    <div style="margin-bottom: 20px;">
+        <label for="status">EXECUTION_STATUS:</label>
+        <select name="status" id="status" 
+                style="background: #000; color: #33ff33; border: 1px solid #33ff33; font-family: inherit; width: 100%; padding: 8px;">
+            <option value="draft" {% if story.status == 'draft' %}selected{% endif %}>DRAFT</option>
+            <option value="published" {% if story.status == 'published' %}selected{% endif %}>PUBLISHED</option>
+        </select>
+    </div>
+
+    <div class="separator"></div>
+
+    <button type="submit">[ OVERWRITE_DATA.EXE ]</button>
+    <a href="{% url 'my_stories' %}" style="margin-left: 20px; color: #ff3333;">[ ABORT_CHANGES ]</a>
+</form>
+
+{% endblock %}

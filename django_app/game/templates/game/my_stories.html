@@ -42,12 +42,15 @@
 
             <td style="padding: 10px; text-align: right; white-space: nowrap;">
                 {% if story.status != 'suspended' %}
+                <a href="{% url 'story_structure' story.id %}" style="color: #33ff33; margin-right: 15px;">
+                    [ MANAGE_PAGES ]
+                </a>
                 <a href="{% url 'publish_story' story.id %}" style="color: #ffff33; margin-right: 15px;">
                     {% if story.status == 'published' %}[ UNPUBLISH ]{% else %}[ PUBLISH ]{% endif %}
                 </a>
                 {% endif %}
 
-                <a href="#" style="color: #999; margin-right: 15px;">[ EDIT ]</a>
+                <a href="{% url 'edit_story' story.id %}" style="color: #999; margin-right: 15px;">[ EDIT ]</a>
 
                 <a href="{% url 'delete_story' story.id %}" style="color: #ff3333;"
                     onclick="return confirm('WARNING: DELETE FILE? THIS CANNOT BE UNDONE.');">
