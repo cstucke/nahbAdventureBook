@@ -20,5 +20,6 @@ urlpatterns = [
     path('choice/<int:choice_id>/delete/', views.delete_choice_view, name='delete_choice'),
     path('page/<int:page_id>/delete/', views.delete_page_view, name='delete_page'),
     path('story/<int:story_id>/set_start/<int:page_id>/', views.set_start_page, name='set_start_page'),
+    path('story/<int:story_id>/', views.story_detail, name='story_detail'),
 ]
 

@@ -2,10 +2,12 @@ from django.shortcuts import render, redirect
 import requests
 from django.conf import settings
 from .models import Play
-from django.db.models import Count
+from django.db.models import Count, Avg
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from .forms import ReviewForm
+from .models import Review
 
 # Create your views here.
 def get_headers():
@@ -231,6 +233,48 @@ def delete_page_view(request, page_id):
         return redirect('home')
 
 # Public Views
+
+## Story views
+
+def story_detail(request, story_id):
+    try:
+        res = requests.get(f"{settings.FLASK_API_URL}/stories/{story_id}")
+        if res.status_code != 200:
+            return render(request, 'game/error.html', {'message': "STORY_NOT_FOUND"})
+        story = res.json()
+    except requests.RequestException:
+        return render(request, 'game/error.html', {'message': "CONNECTION_ERROR"})
+
+    reviews = Review.objects.filter(story_id=story_id).order_by('-created_at')
+    avg_rating = reviews.aggregate(Avg('rating'))['rating__avg'] or 0
+    
+    user_review = None
+    if request.user.is_authenticated:
+        user_review = reviews.filter(user=request.user).first()
+
+    if request.method == 'POST' and request.user.is_authenticated:
+        if user_review:
+            form = ReviewForm(request.POST, instance=user_review)
+        else:
+            form = ReviewForm(request.POST)
+        
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.story_id = story_id
+            review.user = request.user
+            review.save()
+            return redirect('story_detail', story_id=story_id)
+    else:
+        form = ReviewForm(instance=user_review) if user_review else ReviewForm()
+
+    return render(request, 'game/story_detail.html', {
+        'story': story,
+        'reviews': reviews,
+        'avg_rating': round(avg_rating, 1),
+        'review_count': reviews.count(),
+        'form': form,
+        'user_has_reviewed': user_review is not None
+    })
 
 def story_list(request):
     search_query = request.GET.get('q', '')

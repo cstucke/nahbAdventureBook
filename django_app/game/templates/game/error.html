@@ -1,0 +1,17 @@
+{% extends 'game/base.html' %}
+
+{% block content %}
+<div style="border: 2px solid #ff3333; padding: 20px; text-align: center;">
+    <h2 style="color: #ff3333; border-bottom: 1px dashed #ff3333;">!!! SYSTEM_FAILURE !!!</h2>
+    
+    <p style="font-size: 1.2em; margin: 30px 0; color: #ff3333;">
+        ERROR_MSG: {{ message|default:"UNDEFINED_EXCEPTION" }}
+    </p>
+
+    <div class="separator"></div>
+
+    <p class="system-msg">RECOMMENDED_ACTION: VERIFY_API_CONNECTION_OR_AUTH_STATUS</p>
+    <br>
+    <a href="{% url 'my_stories' %}" style="color: #ffff33;">[ RETURN_TO_CONSOLE ]</a>
+</div>
+{% endblock %}

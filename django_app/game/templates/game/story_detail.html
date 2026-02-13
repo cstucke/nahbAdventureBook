@@ -1,0 +1,70 @@
+{% extends 'game/base.html' %}
+
+{% block content %}
+<p class="system-msg">LOADING_MODULE_METADATA...</p>
+<br>
+
+<div style="border: 1px solid #33ff33; padding: 20px; margin-bottom: 20px;">
+    <div style="display: flex; justify-content: space-between;">
+        <h2 style="margin: 0;">{{ story.title }}</h2>
+        <span style="color: #ffff33;">
+            RATING: {{ avg_rating }}/5.0 ({{ review_count }} VOTES)
+        </span>
+    </div>
+    <p style="color: #ccc; font-style: italic;">{{ story.description }}</p>
+
+    <div class="separator"></div>
+
+    <a href="{% url 'play_story' story.id %}"
+        style="background: #33ff33; color: #000; padding: 10px 20px; font-weight: bold;">
+        [ EXECUTE_STORY.EXE ]
+    </a>
+
+    {% if user.id == story.author_id %}
+    <a href="{% url 'story_structure' story.id %}" style="margin-left: 20px;">[ EDIT_SOURCE ]</a>
+    {% endif %}
+</div>
+
+{% if user.is_authenticated %}
+<div style="border: 1px dashed #666; padding: 15px; margin-bottom: 30px;">
+    <h3>// {% if user_has_reviewed %}UPDATE_REVIEW{% else %}SUBMIT_REVIEW{% endif %}</h3>
+    <form method="post">
+        {% csrf_token %}
+        <div style="margin-bottom: 10px;">
+            <label>RATING_VALUE:</label>
+            {{ form.rating }}
+        </div>
+        <div style="margin-bottom: 10px;">
+            <label>USER_COMMENT:</label>
+            {{ form.text }}
+        </div>
+        <button type="submit">
+            [ {% if user_has_reviewed %}OVERWRITE_DATA{% else %}TRANSMIT_DATA{% endif %} ]
+        </button>
+    </form>
+</div>
+{% endif %}
+
+<h3>// USER_FEEDBACK_LOGS</h3>
+{% if reviews %}
+<ul style="list-style: none; padding: 0;">
+    {% for review in reviews %}
+    <li style="margin-bottom: 15px; border-left: 2px solid #333; padding-left: 10px;">
+        <div style="display: flex; justify-content: space-between;">
+            <strong style="color: #33ff33;">{{ review.user.username }}</strong>
+            <span style="color: #ffff33;">
+                {% for i in "12345"|make_list %}
+                {% if forloop.counter <= review.rating %}*{% else %}.{% endif %} {% endfor %} </span>
+        </div>
+        <p style="margin-top: 5px;">{{ review.text }}</p>
+        <span class="system-msg" style="font-size: 0.8em;">{{ review.created_at|date:"Y-m-d H:i" }}</span>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p class="system-msg">NO_DATA_FOUND. BE THE FIRST TO CONTRIBUTE.</p>
+{% endif %}
+
+<div class="separator"></div>
+<a href="{% url 'story_list' %}">&lt;&lt; RETURN_TO_ROOT</a>
+{% endblock %}
