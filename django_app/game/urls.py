@@ -11,5 +11,6 @@ urlpatterns = [
     path('dashboard/', views.my_stories, name='my_stories'),
     path('story/new/', views.create_story, name='create_story'),
     path('story/<int:story_id>/delete/', views.delete_story, name='delete_story'),
+    path('story/<int:story_id>/publish/', views.publish_story, name='publish_story'),
 ]
 

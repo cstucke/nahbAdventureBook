@@ -81,6 +81,21 @@ def delete_story(request, story_id):
         
     return redirect('my_stories')
 
+@login_required
+def publish_story(request, story_id):
+    res = requests.get(f"{settings.FLASK_API_URL}/stories/{story_id}")
+    if res.status_code == 200:
+        story = res.json()
+        if story.get('author_id') == request.user.id:
+            new_status = 'published' if story.get('status') == 'draft' else 'draft'
+            
+            requests.put(
+                f"{settings.FLASK_API_URL}/stories/{story_id}",
+                json={'status': new_status},
+                headers=get_headers()
+            )
+    return redirect('my_stories')
+
 # Public Views
 
 def story_list(request):
