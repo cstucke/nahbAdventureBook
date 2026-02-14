@@ -1,36 +1,42 @@
 {% extends 'game/base.html' %}
 
 {% block content %}
-    
-    <div style="margin-bottom: 40px;">
-        <p class="system-msg">LOADING PAGE_DATA...</p>
-        <br>
-        <p style="white-space: pre-wrap;">{{ page.text }}</p>
-    </div>
 
-    <div class="separator"></div>
+<div style="margin-bottom: 40px;">
+    <p class="system-msg">LOADING PAGE_DATA...</p>
+    <br>
+    <p style="white-space: pre-wrap;">{{ page.text }}</p>
+</div>
 
-    {% if page.is_ending %}
-        <div style="border: 1px solid #33ff33; padding: 20px; text-align: center;">
-            <h3 style="color: red; border-color: red;">!!! SESSION TERMINATED !!!</h3>
-            {% if page.ending_label %}
-                <p>OUTCOME: {{ page.ending_label }}</p>
-            {% endif %}
-            <br>
-            <a href="{% url 'story_list' %}">&lt;&lt; REBOOT_SYSTEM</a>
-        </div>
+<div style="margin-top: 30px; border-top: 1px dashed #333; padding-top: 10px;">
+    <a href="{% url 'player_path' story_id %}" style="color: #999; font-size: 0.8em;">
+        [ VIEW_JOURNEY_LOG ]
+    </a>
+</div>
 
-    {% else %}
-        <h3>INPUT_REQUIRED:</h3>
-        <ul style="list-style-type: none; padding: 0;">
-            {% for choice in page.choices %}
-                <li style="margin-bottom: 15px;">
-                    <a href="{% url 'play_story' story_id %}?page={{ choice.next_page_id }}">
-                        > {{ choice.text }}
-                    </a>
-                </li>
-            {% endfor %}
-        </ul>
+<div class="separator"></div>
+
+{% if page.is_ending %}
+<div style="border: 1px solid #33ff33; padding: 20px; text-align: center;">
+    <h3 style="color: red; border-color: red;">!!! SESSION TERMINATED !!!</h3>
+    {% if page.ending_label %}
+    <p>OUTCOME: {{ page.ending_label }}</p>
     {% endif %}
+    <br>
+    <a href="{% url 'story_list' %}">&lt;&lt; REBOOT_SYSTEM</a>
+</div>
+
+{% else %}
+<h3>INPUT_REQUIRED:</h3>
+<ul style="list-style-type: none; padding: 0;">
+    {% for choice in page.choices %}
+    <li style="margin-bottom: 15px;">
+        <a href="{% url 'play_story' story_id %}?page={{ choice.next_page_id }}">
+            > {{ choice.text }}
+        </a>
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
 
 {% endblock %}

@@ -22,12 +22,17 @@
 
     {% if user.id == story.author_id %}
     <a href="{% url 'story_structure' story.id %}" style="margin-left: 20px;">[ EDIT_SOURCE ]</a>
+    <a href="{% url 'story_graph' story.id %}" style="margin-left: 15px; color: #ffff33;">[ VIEW_GRAPH ]</a>
     {% endif %}
+    <a href="{% url 'report_story' story.id %}" style="color: #ff3333; font-size: 0.8em;">
+        [ ! REPORT_MODULE ]
+    </a>
 </div>
 
 {% if user.is_authenticated %}
 <div style="border: 1px dashed #666; padding: 15px; margin-bottom: 30px;">
     <h3>// {% if user_has_reviewed %}UPDATE_REVIEW{% else %}SUBMIT_REVIEW{% endif %}</h3>
+    
     <form method="post">
         {% csrf_token %}
         <div style="margin-bottom: 10px;">

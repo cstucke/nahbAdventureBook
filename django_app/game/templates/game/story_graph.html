@@ -1,0 +1,72 @@
+{% extends 'game/base.html' %}
+
+{% block content %}
+<h2>// NARRATIVE_TREE_VISUALIZATION: {{ story.title }}</h2>
+<p class="system-msg">RENDERING_LOGIC_MAP...</p>
+<div class="separator"></div>
+
+<script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+        startOnLoad: true,
+        theme: 'base',
+        themeVariables: {
+            primaryColor: '#000',
+            primaryTextColor: '#33ff33',
+            primaryBorderColor: '#33ff33',
+            lineColor: '#33ff33',
+            secondaryColor: '#111',
+            tertiaryColor: '#111'
+        }
+    });
+</script>
+
+<div class="mermaid" style="background: #000; border: 1px solid #333; padding: 20px; overflow-x: auto;">
+    graph TD
+    %% Define Styles
+    classDef default fill:#000,stroke:#33ff33,stroke-width:2px,color:#33ff33;
+    classDef startNode fill:#003300,stroke:#ffff33,stroke-width:4px,color:#ffff33;
+    classDef endNode fill:#330000,stroke:#ff3333,stroke-width:2px,color:#ff3333;
+
+    %% Generate Nodes and Links
+    {% for page in story.pages %}
+    %% Node Definition: ID["Text"]
+    P{{ page.id }}["PAGE {{ page.id }}<br />{{ page.text|truncatechars:20 }}"]
+
+    %% Apply Styles
+    {% if story.start_page_id == page.id %}
+    class P{{ page.id }} startNode
+    {% elif page.is_ending %}
+    class P{{ page.id }} endNode
+    {% endif %}
+
+    %% Link Definition: Source -->|Label| Target
+    {% for choice in page.choices %}
+    P{{ page.id }} -->|"{{ choice.text }}"| P{{ choice.next_page_id }}
+    {% endfor %}
+    {% endfor %}
+</div>
+
+<div class="separator"></div>
+
+<div style="display: flex; gap: 20px;">
+    <div style="display: flex; align-items: center;">
+        <div style="width: 20px; height: 20px; border: 2px solid #ffff33; background: #003300; margin-right: 10px;">
+        </div>
+        <span>START_NODE</span>
+    </div>
+    <div style="display: flex; align-items: center;">
+        <div style="width: 20px; height: 20px; border: 2px solid #33ff33; background: #000; margin-right: 10px;"></div>
+        <span>NORMAL_NODE</span>
+    </div>
+    <div style="display: flex; align-items: center;">
+        <div style="width: 20px; height: 20px; border: 2px solid #ff3333; background: #330000; margin-right: 10px;">
+        </div>
+        <span>ENDING_NODE</span>
+    </div>
+</div>
+
+<br>
+<a href="{% url 'story_structure' story.id %}">&lt;&lt; RETURN_TO_STRUCTURE</a>
+
+{% endblock %}

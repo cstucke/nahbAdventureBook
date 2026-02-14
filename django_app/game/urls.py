@@ -21,5 +21,8 @@ urlpatterns = [
     path('page/<int:page_id>/delete/', views.delete_page_view, name='delete_page'),
     path('story/<int:story_id>/set_start/<int:page_id>/', views.set_start_page, name='set_start_page'),
     path('story/<int:story_id>/', views.story_detail, name='story_detail'),
+    path('story/<int:story_id>/report/', views.report_story, name='report_story'),
+    path('story/<int:story_id>/graph/', views.story_graph, name='story_graph'),
+    path('story/<int:story_id>/my-path/', views.player_path, name='player_path'),
 ]
 

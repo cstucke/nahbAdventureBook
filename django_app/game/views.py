@@ -7,7 +7,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from .forms import ReviewForm
-from .models import Review
+from .models import Review, Report
 
 # Create your views here.
 def get_headers():
@@ -27,6 +27,20 @@ def register(request):
     return render(request, 'registration/register.html', {'form': form})
 
 # Author Views
+
+## Illustration views
+
+@login_required
+def story_graph(request, story_id):
+    try:
+        res = requests.get(f"{settings.FLASK_API_URL}/stories/{story_id}")
+        story = res.json()
+        if story.get('author_id') != request.user.id:
+             return render(request, 'game/error.html', {'message': "ACCESS_DENIED"})
+    except:
+        return render(request, 'game/error.html', {'message': "GRAPH_GENERATION_FAILED"})
+
+    return render(request, 'game/story_graph.html', {'story': story})
 
 ## Story CRUD
 
@@ -276,6 +290,22 @@ def story_detail(request, story_id):
         'user_has_reviewed': user_review is not None
     })
 
+@login_required
+def report_story(request, story_id):
+    if request.method == 'POST':
+        reason = request.POST.get('reason')
+        description = request.POST.get('description')
+        
+        Report.objects.create(
+            story_id=story_id,
+            user=request.user,
+            reason=reason,
+            description=description
+        )
+        return redirect('story_detail', story_id=story_id)
+    
+    return render(request, 'game/report_story.html', {'story_id': story_id})
+
 def story_list(request):
     search_query = request.GET.get('q', '')
 
@@ -300,7 +330,7 @@ def story_list(request):
 def play_story(request, story_id):
     page_id = request.GET.get('page')
     session_key = f'progress_{story_id}'
-    
+    path_key = f'path_{story_id}'
     
     if not page_id:
 
@@ -319,7 +349,8 @@ def play_story(request, story_id):
         start_page_id = story_data.get('start_page_id')
         if not start_page_id:
              return render(request, 'game/error.html', {'message': "Story has no start page"})
-             
+            
+        request.session[path_key] = [start_page_id]
         return redirect(f"/play/{story_id}?page={start_page_id}")
 
     page_res = requests.get(f"{settings.FLASK_API_URL}/pages/{page_id}")
@@ -327,6 +358,12 @@ def play_story(request, story_id):
         return render(request, 'game/error.html', {'message': "Page not found"})
 
     page_data = page_res.json()
+
+    current_path = request.session.get(path_key, [])
+    p_id = int(page_id)
+    if not current_path or current_path[-1] != p_id:
+        current_path.append(p_id)
+        request.session[path_key] = current_path
 
     if page_data.get('is_ending'):
         if session_key in request.session:
@@ -350,6 +387,26 @@ def restart_story(request, story_id):
     if session_key in request.session:
         del request.session[session_key]
     return redirect('story_list')
+
+@login_required
+def player_path(request, story_id):
+    path_key = f'path_{story_id}'
+    path_ids = request.session.get(path_key, [])
+    
+    if not path_ids:
+        return render(request, 'game/error.html', {'message': "NO_PATH_HISTORY_FOUND"})
+
+    try:
+        res = requests.get(f"{settings.FLASK_API_URL}/stories/{story_id}")
+        res.raise_for_status()
+        story = res.json()
+    except requests.RequestException:
+        return render(request, 'game/error.html', {'message': "API_UNREACHABLE"})
+
+    return render(request, 'game/player_path.html', {
+        'story': story,
+        'path_ids': path_ids
+    })
 
 def global_stats(request):
     try:

@@ -1,0 +1,35 @@
+{% extends 'game/base.html' %}
+
+{% block content %}
+<p class="system-msg">INITIATING_REPORT_PROTOCOL...</p>
+<br>
+
+<h2>// REPORT_MODULE_ID_{{ story_id }} //</h2>
+
+<form method="post" style="max-width: 600px;">
+    {% csrf_token %}
+    
+    <div style="margin-bottom: 20px;">
+        <label for="reason">VIOLATION_CATEGORY:</label>
+        <select name="reason" id="reason" 
+                style="background: #000; color: #33ff33; border: 1px solid #33ff33; font-family: inherit; width: 100%; padding: 8px;">
+            <option value="SPAM">SPAM_OR_MISLEADING</option>
+            <option value="INAPPROPRIATE">INAPPROPRIATE_CONTENT</option>
+            <option value="BROKEN">BROKEN_LOGIC_OR_BUGS</option>
+            <option value="OTHER">OTHER_ANOMALY</option>
+        </select>
+    </div>
+
+    <div style="margin-bottom: 20px;">
+        <label for="description">INCIDENT_DETAILS:</label>
+        <textarea name="description" id="description" rows="5" required 
+                  placeholder="Provide a detailed log of the violation..."></textarea>
+    </div>
+
+    <div class="separator"></div>
+
+    <button type="submit">[ TRANSMIT_REPORT.EXE ]</button>
+    <a href="{% url 'story_detail' story_id %}" style="margin-left: 20px; color: #ff3333;">[ ABORT ]</a>
+</form>
+
+{% endblock %}

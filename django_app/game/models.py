@@ -31,3 +31,21 @@ class Review(models.Model):
 
     def __str__(self):
         return f"Review by {self.user.username} on Story {self.story_id}"
+
+class Report(models.Model):
+    REASON_CHOICES = [
+        ('SPAM', 'Spam or misleading'),
+        ('INAPPROPRIATE', 'Inappropriate content'),
+        ('BROKEN', 'Broken/Non-functional'),
+        ('OTHER', 'Other'),
+    ]
+    
+    story_id = models.IntegerField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    reason = models.CharField(max_length=20, choices=REASON_CHOICES)
+    description = models.TextField(help_text="Provide details about the issue.")
+    created_at = models.DateTimeField(auto_now_add=True)
+    resolved = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Report on Story {self.story_id} by {self.user.username}"
