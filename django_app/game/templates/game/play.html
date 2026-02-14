@@ -16,6 +16,14 @@
 
 <div class="separator"></div>
 
+{% if page.illustration_url %}
+    <div style="border: 1px solid #33ff33; padding: 10px; margin-bottom: 20px; background: #000;">
+        <img src="{{ page.illustration_url }}" 
+             alt="Scene Visual" 
+             style="display: block; width: 100%; height: auto; border: 1px solid #222;">
+    </div>
+{% endif %}
+
 {% if page.is_ending %}
 <div style="border: 1px solid #33ff33; padding: 20px; text-align: center;">
     <h3 style="color: red; border-color: red;">!!! SESSION TERMINATED !!!</h3>

@@ -200,7 +200,8 @@ def edit_page(request, page_id):
         payload = {
             'text': request.POST.get('text'),
             'is_ending': 'is_ending' in request.POST,
-            'ending_label': request.POST.get('ending_label')
+            'ending_label': request.POST.get('ending_label'),
+            'illustration_url': request.POST.get('illustration_url')
         }
         requests.put(
             f"{settings.FLASK_API_URL}/pages/{page_id}",

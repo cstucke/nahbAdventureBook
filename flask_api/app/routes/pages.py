@@ -43,6 +43,8 @@ def update_page(page_id):
         page.is_ending = data['is_ending']
     if 'ending_label' in data:
         page.ending_label = data['ending_label']
+    if 'illustration_url' in data:
+        page.illustration_url = data['illustration_url']
         
     db.session.commit()
     return jsonify(page.to_dict())

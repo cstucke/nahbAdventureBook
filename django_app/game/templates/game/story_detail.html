@@ -4,6 +4,12 @@
 <p class="system-msg">LOADING_MODULE_METADATA...</p>
 <br>
 
+{% if story.illustration_url %}
+<div style="margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 20px;">
+    <img src="{{ story.illustration_url }}" style="max-width: 100%; height: 200px; object-fit: cover; border: 1px solid #33ff33;">
+</div>
+{% endif %}
+
 <div style="border: 1px solid #33ff33; padding: 20px; margin-bottom: 20px;">
     <div style="display: flex; justify-content: space-between;">
         <h2 style="margin: 0;">{{ story.title }}</h2>
